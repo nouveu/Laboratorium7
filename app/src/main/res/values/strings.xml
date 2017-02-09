@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Aplikacja NFC</string>
+    <string name="zapisz_tag">Zapisz TAG NFC</string>
+    <string name="access_denied">Ta funkcjonalność wymaga praw dostępu</string>
+</resources>
