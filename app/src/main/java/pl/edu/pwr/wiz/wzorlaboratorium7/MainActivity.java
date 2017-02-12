@@ -19,12 +19,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
@@ -37,8 +35,6 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout parentView;
     private TextView textView;
 
-    private boolean isMimeType = true;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,8 +45,6 @@ public class MainActivity extends AppCompatActivity {
         textView = (TextView) findViewById(R.id.textView);
 
         textView.setText("");
-
-        bindRadioButtons();
 
         /* Podpinamy obsluge przycisku do zapisu TAGu NFC */
         Button btn = (Button) findViewById(R.id.zapisz_tag);
@@ -72,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void parseIntent(Intent intent) {
         if (!mWriteMode && intent != null && NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction())) {
-//        if (!mWriteMode && intent != null && NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())) {
 
             /* Odczyt danych */
             Parcelable[] rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
@@ -100,13 +93,15 @@ public class MainActivity extends AppCompatActivity {
                                 Snackbar.make(parentView, url, Snackbar.LENGTH_LONG).show();
                             }
 
-                            Toast.makeText(getApplicationContext(), "Tag zawiera adres: " + url, Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "uri: " + url, Toast.LENGTH_LONG).show();
                         }
+                        // Obsluga text/plain
+                        else if (isTextPlain(record)) {
+                            String data = new String(record.getPayload());
+                            textView.setText("text/plain: " + data);
 
-                        if (record.getTnf() == NdefRecord.TNF_MIME_MEDIA) {
-                            textView.setText(new String(record.getPayload()));
+                            Toast.makeText(getApplicationContext(), "text/plain: " + data, Toast.LENGTH_LONG).show();
                         }
-                        else textView.setText("");
                     }
                 }
             }
@@ -117,13 +112,7 @@ public class MainActivity extends AppCompatActivity {
             NdefRecord record;
             String data = String.valueOf(editText.getText());
 
-            if (isMimeType) {
-                if (data.isEmpty()) data = "empty string";
-                record = NdefRecord.createMime("text/plain", data.getBytes(Charset.defaultCharset()));
-            } else {
-                if (data.isEmpty()) data = "pwr2://test.pl/adres";
-                record = NdefRecord.createUri(data);
-            }
+            record = NdefRecord.createUri(data);
 
             NdefMessage message = new NdefMessage(new NdefRecord[]{record});
             if (writeTag(message, detectedTag)) {
@@ -133,6 +122,10 @@ public class MainActivity extends AppCompatActivity {
                 alertDialog.dismiss();
             }
         }
+    }
+
+    private boolean isTextPlain(NdefRecord record) {
+        return record.getTnf() == NdefRecord.TNF_MIME_MEDIA;
     }
 
     private boolean isUri(NdefRecord record) {
@@ -219,25 +212,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             return false;
         }
-    }
-
-    private void bindRadioButtons() {
-        RadioButton mimeRadioBtn = (RadioButton) findViewById(R.id.mimeRadioBtn);
-        mimeRadioBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                isMimeType = true;
-            }
-        });
-        mimeRadioBtn.setChecked(true);
-
-        RadioButton uriRadioBtn = (RadioButton) findViewById(R.id.uriRadioBtn);
-        uriRadioBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                isMimeType = false;
-            }
-        });
     }
 
 }

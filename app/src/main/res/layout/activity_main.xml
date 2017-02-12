@@ -15,25 +15,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-        <RadioButton
-            android:id="@+id/mimeRadioBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="MIME" />
-
-        <RadioButton
-            android:id="@+id/uriRadioBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="URI" />
-
     </RadioGroup>
 
     <EditText
         android:id="@+id/editText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Podaj dane" />
+        android:hint="Podaj URI" />
 
     <Button
         android:id="@+id/zapisz_tag"
